@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Map</title>
+    <link rel="stylesheet" href="/leaflet/leaflet.css"/>
+    <script src="/leaflet/leaflet.js"></script>
+    <script src="/leaflet/leaflet.geometryutil.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+        h1 {
+            padding: 0;
+            margin: 0;
+            padding-bottom: 1rem;
+        }
+        #map {
+            height: 100vh;
+            width: 75vw;
+        }
+        #panel {
+            position: absolute;
+            background: white;
+            top: 0;
+            right: 0;
+            width: 25vw;
+            bottom: 0;
+            padding: 2rem;
+            overflow: auto;
+        }
+        #header {
+
+        }
+        #points {
+
+        }
+        #points > div {
+            cursor: pointer;
+        }
+        #actions {
+
+        }
+        .point {
+            position: relative;
+            border: solid 1px #888;
+            border-radius: 5px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .point .delete {
+            text-decoration: none;
+            color: red;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+        .point-latlng label {
+            display: block;
+            __padding-bottom: 1rem;
+        }
+        .point-latlng label span {
+            display: inline-block;
+            width: 3rem;
+            font-family: monospace;
+        }
+        .point-latlng label input {
+            font-family: monospace;
+            width: 8rem;
+        }
+        #actions label {
+            display: block;
+            padding-bottom: 1rem;
+        }
+        #actions label span {
+            display: inline-block;
+        }
+        #actions label input {
+            font-family: monospace;
+        }
+        #button-start {
+            background: #0d6efd;
+            color: white;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            border: solid 1px #888;
+        }
+        .point-id {
+            padding-bottom: 0.5rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="panel">
+    <div id="header">
+        <h1>Geo Location Control</h1>
+        <p style="line-height: 1.5rem">
+            Simulate geo location by adding points into the map.
+            You can also simulate movement across path.
+        </p>
+    </div>
+    <div id="actions">
+        <hr>
+        <p>Click on the map to add points</p>
+        <hr>
+        <label>
+            <span>Speed (in km/h):</span>
+            <input type="text" id="input-speed" style="width: 3rem;">
+        </label>
+        <label>
+            <span>Make a loop:</span>
+            <input type="checkbox" id="input-loop">
+        </label>
+        <div style="padding-bottom: 1rem;">
+            <button id="button-start" style="cursor: pointer;">Start Move</button>
+        </div>
+        <hr>
+    </div>
+    <div id="points"></div>
+</div>
+<script src="map.js"></script>
+</body>
+</html>
