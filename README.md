@@ -15,10 +15,9 @@ It will override the location APIs to return fake positions, including 'in movem
 You can either add one point, and the API will get its coordinate,
 or multiple points and use the "Start Move" button, then the API will return the current position of the agent based on time and speed.
 
-Note: for this part to work, you must keep the extension page open.
+Note: for this part to work, you must keep the extension page open (it can be left in the background).
 
-<!-- ![Screenshot of the extension main page](screenshot.png) -->
-![Video of the extension main page](video.mp4)
+https://github.com/jrmgx/GeoLocationControlExtension/assets/42989/52147f3b-cbc7-4d52-bf03-132f7afd5583
 
 ## Technical aspects
 
