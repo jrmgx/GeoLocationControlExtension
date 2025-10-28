@@ -2,7 +2,7 @@ function onError(error) {
   console.error(error);
 }
 
-function buildGeolocationPosition(lat, lng) {
+function buildGeolocationPosition(lat, lng, speed) {
   return {
     timestamp: Date.now(),
     coords: {
@@ -13,12 +13,13 @@ function buildGeolocationPosition(lat, lng) {
       altitudeAccuracy: null,
       heading: parseInt('NaN', 10),
       velocity: null,
+			speed: speed ? (speed * 1000) / 3600 : 0, // convert km/h to m/s
     },
   };
 }
 
 const contentScriptConnections = [];
-let currentPosition = { lat: 48.853394456522416, lng: 2.3487943410873418 }; // Paris
+let currentPosition = { lat: 48.853394456522416, lng: 2.3487943410873418, speed: 0 }; // Paris
 // id (timestamps is ms) => { lat, lng }
 const points = {};
 let pref = { speed: 5.5, loop: false };
@@ -60,10 +61,11 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     currentPosition = {
       lat: request.fromPercentOfPath.latLng.lat,
       lng: request.fromPercentOfPath.latLng.lng,
+			speed: request.speed || 0,
     };
     contentScriptConnections.forEach((connection) => {
       connection.postMessage({
-        geolocationPosition: buildGeolocationPosition(currentPosition.lat, currentPosition.lng),
+        geolocationPosition: buildGeolocationPosition(currentPosition.lat, currentPosition.lng, currentPosition.speed),
       });
     });
   }
@@ -71,7 +73,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   // This is sent by our content script to get the current position
   if (request.request === 'request.geolocation.getCurrentPosition'
       || request.request === 'request.geolocation.watchPosition') {
-    sendResponse({ geolocationPosition: buildGeolocationPosition(currentPosition.lat, currentPosition.lng) });
+    sendResponse({ geolocationPosition: buildGeolocationPosition(currentPosition.lat, currentPosition.lng, currentPosition.speed) });
     return true;
   }
 

@@ -61,7 +61,7 @@ const calculateNextPoint = () => {
   const distanceCoveredInOneSecond = (pref.speed * 1000) / 3600;
   currentPositionInPercent += (distanceCoveredInOneSecond / totalDistance);
   const fromPercentOfPath = L.GeometryUtil.interpolateOnLine(map, path, currentPositionInPercent);
-  browser.runtime.sendMessage({ request: 'setCurrentPosition', fromPercentOfPath });
+  browser.runtime.sendMessage({ request: 'setCurrentPosition', fromPercentOfPath, speed: pref.speed });
   // Update marker
   if (moveMarker) {
     moveMarker.remove();
