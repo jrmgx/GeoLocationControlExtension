@@ -40,6 +40,116 @@ const pointsContainer = document.getElementById('points');
 const inputSpeed = document.getElementById('input-speed');
 const inputLoop = document.getElementById('input-loop');
 const buttonStart = document.getElementById('button-start');
+const buttonLoadGpx = document.getElementById('button-load-gpx');
+const inputGpx = document.getElementById('input-gpx');
+
+// GPX Parser
+const parseGPX = (gpxString) => {
+  const parser = new DOMParser();
+  const gpxDoc = parser.parseFromString(gpxString, 'text/xml');
+  
+  // Check for parsing errors
+  const parserError = gpxDoc.querySelector('parsererror');
+  if (parserError) {
+    throw new Error('Invalid GPX file');
+  }
+  
+  const coordinates = [];
+  
+  // Try to get trackpoints from tracks (trk > trkseg > trkpt)
+  const trackpoints = gpxDoc.querySelectorAll('trkpt');
+  if (trackpoints.length > 0) {
+    trackpoints.forEach(trkpt => {
+      const lat = parseFloat(trkpt.getAttribute('lat'));
+      const lon = parseFloat(trkpt.getAttribute('lon'));
+      if (!isNaN(lat) && !isNaN(lon)) {
+        coordinates.push({ lat, lng: lon });
+      }
+    });
+  }
+  
+  // If no trackpoints, try waypoints (wpt)
+  if (coordinates.length === 0) {
+    const waypoints = gpxDoc.querySelectorAll('wpt');
+    waypoints.forEach(wpt => {
+      const lat = parseFloat(wpt.getAttribute('lat'));
+      const lon = parseFloat(wpt.getAttribute('lon'));
+      if (!isNaN(lat) && !isNaN(lon)) {
+        coordinates.push({ lat, lng: lon });
+      }
+    });
+  }
+  
+  // If no waypoints, try route points (rte > rtept)
+  if (coordinates.length === 0) {
+    const routepoints = gpxDoc.querySelectorAll('rtept');
+    routepoints.forEach(rtept => {
+      const lat = parseFloat(rtept.getAttribute('lat'));
+      const lon = parseFloat(rtept.getAttribute('lon'));
+      if (!isNaN(lat) && !isNaN(lon)) {
+        coordinates.push({ lat, lng: lon });
+      }
+    });
+  }
+  
+  return coordinates;
+};
+
+const loadGPXFile = (file) => {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const gpxString = e.target.result;
+      const coordinates = parseGPX(gpxString);
+      
+      if (coordinates.length === 0) {
+        alert('No coordinates found in GPX file');
+        return;
+      }
+      
+      // Clear existing points if user confirms
+      if (Object.keys(points).length > 0) {
+        if (!confirm(`This will clear ${Object.keys(points).length} existing point(s). Continue?`)) {
+          return;
+        }
+        // Clear existing points
+        Object.keys(points).forEach(id => {
+          const pointContainer = document.getElementById(`point-${id}`);
+          if (pointContainer) {
+            pointContainer.remove();
+          }
+          deletePoint(id);
+          delete points[id];
+        });
+        markerGroup.clearLayers();
+      }
+      
+      stopMove();
+      
+      // Add GPX points
+      coordinates.forEach((coord, index) => {
+        const id = `${(new Date()).getTime()}-${index}`;
+        const position = { lat: coord.lat, lng: coord.lng };
+        points[id] = position;
+        savePoint(id, position);
+        displayPoint(id, coord.lat, coord.lng);
+      });
+      
+      updatePath();
+      map.fitBounds(markerGroup.getBounds());
+      
+      alert(`Successfully loaded ${coordinates.length} point(s) from GPX file`);
+    } catch (error) {
+      console.error(error);
+      alert('Error loading GPX file: ' + error.message);
+    }
+  };
+  reader.onerror = () => {
+    alert('Error reading file');
+  };
+  reader.readAsText(file);
+};
+
 
 const stopMove = () => {
   if (moveHandler) {
@@ -246,6 +356,19 @@ buttonStart.addEventListener('click', () => {
   } else {
     startMove();
   }
+});
+
+buttonLoadGpx.addEventListener('click', () => {
+  inputGpx.click();
+});
+
+inputGpx.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    loadGPXFile(file);
+  }
+  // Reset input so the same file can be loaded again
+  e.target.value = '';
 });
 
 function onMapClick(e) {
