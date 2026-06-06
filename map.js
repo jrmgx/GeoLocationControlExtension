@@ -136,8 +136,11 @@ const loadGPXFile = (file) => {
       });
       
       updatePath();
-      map.fitBounds(markerGroup.getBounds());
-      
+  const bounds = markerGroup.getBounds();
+  if (bounds.isValid()) {
+    map.fitBounds(bounds);
+  }
+
       alert(`Successfully loaded ${coordinates.length} point(s) from GPX file`);
     } catch (error) {
       console.error(error);
@@ -332,7 +335,10 @@ browser.storage.local.get().then((results) => {
     displayPoint(storageKey, storageValue.lat, storageValue.lng);
   }
   updatePath();
-  map.fitBounds(markerGroup.getBounds());
+  const bounds = markerGroup.getBounds();
+  if (bounds.isValid()) {
+    map.fitBounds(bounds);
+  }
 }, onError);
 
 // HTML listeners
