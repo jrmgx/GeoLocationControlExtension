@@ -81,6 +81,21 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true; // This means that we used sendResponse
 });
 
+// Forge Referer header for OSM tile requests (OSM enforces referrer policy)
+browser.webRequest.onBeforeSendHeaders.addListener(
+  (details) => {
+    let referer = details.requestHeaders.find((h) => h.name.toLowerCase() === 'referer');
+    if (referer) {
+      referer.value = 'https://addons.mozilla.org/en-US/firefox/addon/geolocationcontrol/';
+    } else {
+      details.requestHeaders.push({ name: 'Referer', value: 'https://addons.mozilla.org/en-US/firefox/addon/geolocationcontrol/' });
+    }
+    return { requestHeaders: details.requestHeaders };
+  },
+  { urls: ['https://tile.openstreetmap.org/*'] },
+  ['blocking', 'requestHeaders']
+);
+
 // Open a new tab with our extension page (map.html)
 chrome.browserAction.onClicked.addListener((_) => {
   chrome.tabs.create({ url: browser.runtime.getURL('map.html') });

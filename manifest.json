@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "version": "0.3",
+  "version": "0.4",
   "name": "GeoLocationControl",
   "description": "",
-  "permissions": ["http://*/*", "https://*/*", "storage"],
+  "permissions": ["http://*/*", "https://*/*", "storage", "webRequest", "webRequestBlocking"],
   "background": {
     "scripts": ["scripts/background.js"],
     "persistent": false
